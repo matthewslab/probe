@@ -17,6 +17,10 @@ package edu.upenn.sas.matthews.ms.basics.spec;
 public class MSnSpectrum extends MassSpectrum {
 
     int msStage;
+    int precScanNumber;
+
+    double precMz;
+    int precZ;
 
     public MSnSpectrum(Peak[] peakArr, int msStage) {
         super(peakArr);
@@ -32,6 +36,54 @@ public class MSnSpectrum extends MassSpectrum {
     }
 
     /**
+     * Get the precursor scan number.
+     * @return the scan number of the precursor scan.
+     */
+    public int getPrecScanNumber() {
+        return precScanNumber;
+    }
+
+    /**
+     * Set the precursor scan number.
+     * @param precScanNumber the number of the precursor scan.
+     */
+    public void setPrecScanNumber(int precScanNumber) {
+        this.precScanNumber = precScanNumber;
+    }
+
+    /**
+     * Get the m/z value of the precursor peak.
+     * @return the m/z value of the precursor peak.
+     */
+    public double getPrecMz() {
+        return precMz;
+    }
+
+    /**
+     * Set the m/z value of the precursor peak.
+     * @param precMz the m/z value of the precursor peak.
+     */
+    public void setPrecMz(double precMz) {
+        this.precMz = precMz;
+    }
+
+    /**
+     * Get the charge state of the precursor peak.
+     * @return the charge state of the precursor peak.
+     */
+    public int getPrecZ() {
+        return precZ;
+    }
+
+    /**
+     * Set the charge state of the precursor peak.
+     * @param precZ the charge state of the precursor peak.
+     */
+    public void setPrecZ(int precZ) {
+        this.precZ = precZ;
+    }
+
+    /**
      * Get the string presentation of the MSn spectrum.
      * @return the string presentation of the MSn spectrum.
      */
@@ -39,4 +91,5 @@ public class MSnSpectrum extends MassSpectrum {
     public String toString() {
         return "MS" + msStage + " Spectrum, Scan " + scanNumber + ", RT " + rt;
     }
+
 }

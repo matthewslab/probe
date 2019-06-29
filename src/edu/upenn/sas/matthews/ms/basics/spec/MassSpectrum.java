@@ -17,7 +17,7 @@ package edu.upenn.sas.matthews.ms.basics.spec;
 public class MassSpectrum {
 
 	double[] mzArr;
-	double[] hArr;
+	double[] intenArr;
 
     int scanNumber;
 	float rt;
@@ -33,10 +33,10 @@ public class MassSpectrum {
 
 		int peakNum = peakArr.length;
 		mzArr = new double[peakNum];
-		hArr = new double[peakNum];
+		intenArr = new double[peakNum];
 		for (int i = 0; i < peakNum; i++) {
 			mzArr[i] = peakArr[i].mz;
-			hArr[i] = peakArr[i].h;
+			intenArr[i] = peakArr[i].h;
 		}
 	}
 
@@ -70,6 +70,22 @@ public class MassSpectrum {
 	 */
 	public void setScanNumber(int scanNumber) {
 		this.scanNumber = scanNumber;
+	}
+
+	/**
+	 * Get the array of m/z values.
+	 * @return an array of m/z values.
+	 */
+	public double[] getMzArr() {
+		return mzArr;
+	}
+
+	/**
+	 * Get the array of intensity values.
+	 * @return an array of intensity values.
+	 */
+	public double[] getIntenArr() {
+		return intenArr;
 	}
 
 	/**
