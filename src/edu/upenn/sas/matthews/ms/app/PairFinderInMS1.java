@@ -67,9 +67,11 @@ public class PairFinderInMS1 {
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(new File(ms1Dir, "PairFinderResult.csv")));
         bw.write("file,m/z,z,intensity,rt\n");
+        System.out.println("file\tm/z\tz\tintensity\trt");
         for (String key : groups.keySet()) {
             for (PrecInfo pi : groups.get(key)) {
                 bw.write(pi.toString() + "\n");
+                System.out.println(pi.toString());
             }
         }
         bw.close();
