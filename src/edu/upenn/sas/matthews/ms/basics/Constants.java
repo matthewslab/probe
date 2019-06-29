@@ -16,31 +16,7 @@ package edu.upenn.sas.matthews.ms.basics;
 
 public class Constants {
 
-    // Monoisotopic mass of proton;
-    public static final double PROTON_MASS = 1.0072f;
-
     // Monoisotopic mass of neutron;
     public static final double NEUTRON_MASS = 1.0032f;
-
-    // Monoisotopic mass of molecule H2O;
-    public static final double H2O_MASS = 18.01057f;
-
-    // Monoisotopic mass of molecule OH;
-    public static final double OH_MASS = 17.0027f;
-
-    // Monoisotopic mass of molecule CO;
-    public static final double CO_MASS = 27.995f;
-
-    // Monoisotopic mass of molecule NH3;
-    public static final double NH3_MASS = 17.027f;
-
-    // Monoisotopic mass of molecule NH2;
-    public static final double NH2_MASS = 16.019f;
-
-    // Monoisotopic mass of molecule NH;
-    public static final double NH_MASS = 15.0109f;
-
-    // Monoisotopic mass of molecule NH;
-    public static final double NA_MASS = 22.9898f;
 
 }
