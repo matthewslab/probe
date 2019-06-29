@@ -14,6 +14,8 @@
  */
 package edu.upenn.sas.matthews.ms.basics.spec;
 
+import java.util.Arrays;
+
 public class MassSpectrum {
 
 	double[] mzArr;
@@ -122,5 +124,57 @@ public class MassSpectrum {
 	public String toString() {
 		return "MS1 Spectrum, Scan " + scanNumber + ", RT " + rt;
 	}
-	
+
+	/**
+	 * Look for the index of a specified m/z value in the peak list, w/ an error tolerance.
+	 * @param targetMz, the target m/z value.
+	 * @param errTol, the error tolerance.
+	 * @param isPPM, true if the error tolerance is PPM-unit, false otherwise.
+	 * @return
+	 */
+	public int searchMz(double targetMz, double errTol, boolean isPPM) {
+		if (mzArr.length == 0) {
+			return -1;
+		}
+
+		// Calculate the absolute error tolerance
+		errTol = isPPM ? targetMz * errTol / 1E6 : errTol;
+
+		int pos = Arrays.binarySearch(mzArr, targetMz);
+		if (pos < 0) {
+			pos = -(pos + 1);
+
+			if (pos == 0) {
+				return -1;
+			}
+
+			if (pos == mzArr.length) {
+				double err = Math.abs(targetMz - mzArr[pos - 1]);
+				if (err <= errTol) {
+					return pos - 1;
+				} else {
+					return -1;
+				}
+			}
+
+			double err = Math.abs(targetMz - mzArr[pos]);
+			if (err <= errTol) {
+				if (err < Math.abs(targetMz - mzArr[pos - 1])) {
+					return pos;
+				} else {
+					return pos - 1;
+				}
+			}
+
+			err = Math.abs(targetMz - mzArr[pos - 1]);
+			if (err <= errTol) {
+				return pos - 1;
+			} else {
+				return -1;
+			}
+		}
+
+		return pos;
+	}
+
 }
