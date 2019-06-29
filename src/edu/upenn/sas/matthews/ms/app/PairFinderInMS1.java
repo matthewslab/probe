@@ -65,16 +65,17 @@ public class PairFinderInMS1 {
                 relaIntenThreshold, pairProfileSimilarityThreshold, labelMassDiff);
         Map<String, List<PrecInfo>> groups = group(piList, precMassErrTolByPPM, true, rtDiffTol);
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(ms1Dir, "PairFinderResult.csv")));
+        File outFile = new File(ms1Dir, "PairFinderResult.csv");
+        BufferedWriter bw = new BufferedWriter(new FileWriter(outFile));
         bw.write("file,m/z,z,intensity,rt\n");
-        System.out.println("file\tm/z\tz\tintensity\trt");
         for (String key : groups.keySet()) {
             for (PrecInfo pi : groups.get(key)) {
                 bw.write(pi.toString() + "\n");
-                System.out.println(pi.toString());
             }
         }
         bw.close();
+
+        System.out.println("The result has been exported to " + outFile.getAbsolutePath());
     }
 
     private static void print_params(String ms1FolderPath, int precMassErrTolByPPM, int relaIntenThreshold,
