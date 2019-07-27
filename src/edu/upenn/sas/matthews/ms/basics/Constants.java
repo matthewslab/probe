@@ -16,6 +16,9 @@ package edu.upenn.sas.matthews.ms.basics;
 
 public class Constants {
 
+    // Monoisotopic mass of proton;
+    public static final float PROTON_MASS = 1.0072f;
+
     // Monoisotopic mass of neutron;
     public static final double NEUTRON_MASS = 1.0032f;
 
