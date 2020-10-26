@@ -32,10 +32,11 @@ public class PairFinderInMS1 {
         CmdLineParser parser = new CmdLineParser();
         CmdLineParser.Option ms1FolderPathArg = parser.addStringOption('f', "MS1FolderPath");
         CmdLineParser.Option precMassErrTolByPPMArg = parser.addIntegerOption('e', "PrecMassErrTolByPPM");
-        CmdLineParser.Option relaIntenThresholdArg = parser.addIntegerOption('i', "RelaIntenThreshold");
-        CmdLineParser.Option rtDiffTolArg = parser.addIntegerOption('r', "RtDiffTol");
+        CmdLineParser.Option relaIntenThresholdArg = parser.addDoubleOption('i', "RelaIntenThreshold");
+        CmdLineParser.Option rtDiffTolArg = parser.addDoubleOption('r', "RtDiffTol");
         CmdLineParser.Option pairProfileSimilarityThresholdArg = parser.addDoubleOption('s', "PairProfSimThres");
         CmdLineParser.Option labelMassDiffArg = parser.addDoubleOption('d', "LabelMassDiff");
+        CmdLineParser.Option maxChargeStateArg = parser.addIntegerOption('z', "MaxChargeState");
 
         try {
             parser.parse(args);
@@ -46,11 +47,12 @@ public class PairFinderInMS1 {
 
         String ms1FolderPath = (String) parser.getOptionValue(ms1FolderPathArg);
         Integer precMassErrTolByPPM = (Integer) parser.getOptionValue(precMassErrTolByPPMArg, 5);
-        Integer relaIntenThreshold = (Integer) parser.getOptionValue(relaIntenThresholdArg, 2);
+        Double relaIntenThreshold = (Double) parser.getOptionValue(relaIntenThresholdArg, 2.0);
         Double rtDiffTol = (Double) parser.getOptionValue(rtDiffTolArg, 0.5);
         Double labelMassDiff = (Double) parser.getOptionValue(labelMassDiffArg, 6.0138);
         Double pairProfileSimilarityThreshold =
-                (Double) parser.getOptionValue(pairProfileSimilarityThresholdArg, 0.75);
+                (Double) parser.getOptionValue(pairProfileSimilarityThresholdArg, 0.85);
+        Integer maxChargeState = (Integer) parser.getOptionValue(maxChargeStateArg, 5);
 
         File ms1Dir = new File(ms1FolderPath);
         if (!ms1Dir.exists()) {
@@ -59,10 +61,10 @@ public class PairFinderInMS1 {
         }
 
         print_params(ms1FolderPath, precMassErrTolByPPM, relaIntenThreshold, rtDiffTol, labelMassDiff,
-                pairProfileSimilarityThreshold);
+                pairProfileSimilarityThreshold, maxChargeState);
 
         List<PrecInfo> piList = find(ms1Dir.getAbsolutePath(), precMassErrTolByPPM,
-                relaIntenThreshold, pairProfileSimilarityThreshold, labelMassDiff);
+                relaIntenThreshold, pairProfileSimilarityThreshold, labelMassDiff, maxChargeState);
         Map<String, List<PrecInfo>> groups = group(piList, precMassErrTolByPPM, true, rtDiffTol);
 
         File outFile = new File(ms1Dir, "PairFinderResult.csv");
@@ -78,14 +80,16 @@ public class PairFinderInMS1 {
         System.out.println("The result has been exported to " + outFile.getAbsolutePath());
     }
 
-    private static void print_params(String ms1FolderPath, int precMassErrTolByPPM, int relaIntenThreshold,
-                                     double rtDiffTol, double labelMassDiff, double pairProfileSimilarityThreshold) {
+    private static void print_params(String ms1FolderPath, int precMassErrTolByPPM, double relaIntenThreshold,
+                                     double rtDiffTol, double labelMassDiff, double pairProfileSimilarityThreshold,
+                                     int maxChargeState) {
         System.out.println("Parameters specified:"
                 + "\n\tMS1_Folder_Path: " + ms1FolderPath
                 + "\n\tPrec_Mass_Err_Tol_By_PPM: " + precMassErrTolByPPM
                 + "\n\tRelative_Intensity_Threshold: " + relaIntenThreshold
                 + "\n\tRT_Difference_Tol_By_Minute: " + rtDiffTol
                 + "\n\tPair_Profile_Similarity_Threshold: " + pairProfileSimilarityThreshold
+                + "\n\tMax_Charge_State: " + maxChargeState
                 + "\n\tLabel_Mass_Diff: " + labelMassDiff + "\n");
     }
 
@@ -95,7 +99,8 @@ public class PairFinderInMS1 {
                 + "\t[-e Prec_Mass_Err_Tol_By_PPM (Default: 5)]\n"
                 + "\t[-i Relative_Intensity_Threshold (Default: 2)]\n"
                 + "\t[-r RT_Difference_Tol_By_Minute (Default: 0.5)]\n"
-                + "\t[-s Pair_Profile_Similarity_Threshold (Default: 0.75)]\n"
+                + "\t[-s Pair_Profile_Similarity_Threshold (Default: 0.85)]\n"
+                + "\t[-z Max_Charge_State (Default: 5)]\n"
                 + "\t[-d Label_Mass_Diff (Default: 6.0138)]\n");
         System.exit(1);
     }
@@ -164,8 +169,8 @@ public class PairFinderInMS1 {
         return groups;
     }
 
-    public static List<PrecInfo> find(String ms1Dir, int precMassErrTolByPPM, int relaIntenThreshold,
-                                      double pairProfileSimilarityThreshold, double labelMassDiff)
+    public static List<PrecInfo> find(String ms1Dir, int precMassErrTolByPPM, double relaIntenThreshold,
+                                      double pairProfileSimilarityThreshold, double labelMassDiff, int maxChargeState)
             throws IOException {
         File dir = new File(ms1Dir);
         if (!dir.exists()) {
@@ -179,15 +184,15 @@ public class PairFinderInMS1 {
         List<PrecInfo> piList = new ArrayList<>();
         File[] ms1Files = dir.listFiles(filter);
         for (File ms1File : ms1Files) {
-            find(ms1File, (double) precMassErrTolByPPM, relaIntenThreshold, pairProfileSimilarityThreshold,
-                    labelMassDiff, piList);
+            find(ms1File, precMassErrTolByPPM, relaIntenThreshold, pairProfileSimilarityThreshold,
+                    labelMassDiff, maxChargeState, piList);
         }
 
         return piList;
     }
 
     public static void find(File file, double errTol, double relaIntenThreshold, double pairProfileSimilarityThreshold,
-                            double labelMassDiff, List<PrecInfo> piList) throws IOException {
+                            double labelMassDiff, int maxChargeState, List<PrecInfo> piList) throws IOException {
         MSnFileReader mfr = new MSnFileReader(file.getAbsolutePath());
 
         while (mfr.hasNext()) {
@@ -211,7 +216,7 @@ public class PairFinderInMS1 {
                 if (hArr[i] / maxH * 100 < relaIntenThreshold) {
                     continue;
                 }
-                int z = huntsPair(i, spec, errTol, pairProfileSimilarityThreshold, labelMassDiff);
+                int z = huntsPair(i, spec, errTol, pairProfileSimilarityThreshold, labelMassDiff, maxChargeState);
                 if (z > 0) {
                     piList.add(new PrecInfo(mzArr[i], hArr[i], z, file.getName(), spec.getRt()));
                     prevMz = mzArr[i];
@@ -223,12 +228,12 @@ public class PairFinderInMS1 {
     }
 
     public static int huntsPair(int idx, MSnSpectrum spec, double errTol, double pairProfileSimilarityThreshold,
-                                double labelMassDiff) {
+                                double labelMassDiff, int maxChargeState) {
         double[] mzArr = spec.getMzArr();
         double[] hArr = spec.getIntenArr();
         // try different charge states;
         double mz1 = mzArr[idx];
-        int z = 3;
+        int z = maxChargeState;
         outer: while (z > 1) {
             double dMz = labelMassDiff / z;
             double mz2 = mz1 + dMz;
@@ -317,6 +322,14 @@ class PrecInfo implements Comparable<PrecInfo>, Serializable {
         this.z = z;
         this.filename = filename;
         this.rt = rt;
+    }
+
+    public PrecInfo(PrecInfo pi) {
+        this.mz = pi.mz;
+        this.h = pi.h;
+        this.z = pi.z;
+        this.filename = pi.filename;
+        this.rt = pi.rt;
     }
 
     public String toString() {

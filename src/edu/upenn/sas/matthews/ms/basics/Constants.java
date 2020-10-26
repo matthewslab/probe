@@ -22,4 +22,7 @@ public class Constants {
     // Monoisotopic mass of neutron;
     public static final double NEUTRON_MASS = 1.0032f;
 
+    // Monoisotopic mass of water;
+    public static final double WATER_MASS = 18.01057;
+
 }

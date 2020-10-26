@@ -38,13 +38,7 @@ public interface Residue {
      * Gets the mono mass of this residue.
      * @return the mono mass of this residue.
      */
-    public float getMonoMass();
-
-    /**
-     * Gets the average mass of this residue.
-     * @return the average mass of this residue.
-     */
-    public float getAverMass();
+    public double getMonoMass();
 
     /**
      * Gets the string that represents this residue in a protein sequence.
